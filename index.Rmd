@@ -3,10 +3,12 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-Here is mu website. I hope you enjoy it. 
+Here is my website. I hope you enjoy it. 
 ___
 
+
 ```{r}
-knitr::include_graphics("./Media/UTA_logo.png")
+knitr::include_graphics("./Media/UTA_logo.JPG")
+
 ```
 
