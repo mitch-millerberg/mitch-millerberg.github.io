@@ -2,12 +2,20 @@
 date: "`r Sys.Date()`"
 output: html_document
 ---
+### Mitchell Millerberg
 
-Here is my website. I hope you enjoy it. 
+Here's my website. I hope you enjoy it. 
+
+
 ___
+**About me**
 
 
-```{r}
+**[CV]("/mitch-millerberg.github.io/About_Me")**
+
+
+
+```{r echo= FALSE}
 knitr::include_graphics("./Media/UTA_logo.JPG")
 
 ```
