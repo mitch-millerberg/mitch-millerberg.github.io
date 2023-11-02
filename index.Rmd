@@ -5,13 +5,14 @@ output: html_document
 ### Mitchell Millerberg
 
 Here's my website. I hope you enjoy it. 
+did this change anything
 
 
 ___
 **About me**
 
 
-**[CV]("/mitch-millerberg.github.io/About_Me")**
+**[CV](https://mitch-millerberg.github.io/mitch-millerberg.github.io/About_Me)**
 
 
 
