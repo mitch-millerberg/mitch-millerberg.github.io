@@ -1,23 +1,26 @@
-
-date: "`r Sys.Date()`"
-output: html_document
 ---
-### Mitchell Millerberg
-
-Here's my website. I hope you enjoy it. 
-did this change anything
-
-
+output: html_document
+date: "`r Sys.Date()`"
+---
 ___
 
 **Mitchell_Millerberg **
+
+Highly organized and detail-oriented, adept at maintaining laboratory records, managing data files, and adhering to strict protocols to ensure accuracy and reproducibility. Skilled in inventory management, procurement, and shipment coordination to support research projects and optimize workflows.
+
+```{r echo= FALSE}
+# knitr::include_graphics("./Media/UTA_logo.JPG")
+knitr::include_graphics("./Media/mitch.jpg")
+knitr::include_graphics("./Media/lake-blanche-7.jpg")
+
+
+```
+
+
+Seeking to leverage my research experience, data analysis skills, and laboratory expertise Committed to contributing to advancements in biotechnology and pharmaceutical research, with a strong passion for scientific exploration and problem-solving.
 
 **[CV](https://mitch-millerberg.github.io/About_Me/Mitchell_Millerberg_Resume.pdf)**
 
 
 
-```{r echo= FALSE}
-knitr::include_graphics("./Media/UTA_logo.JPG")
-
-```
 
