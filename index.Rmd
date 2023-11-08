@@ -6,26 +6,36 @@ ___
 
 **Mitchell Millerberg **
 
-Highly organized and detail-oriented, adept at maintaining laboratory records, managing data files, and adhering to strict protocols to ensure accuracy and reproducibility. Skilled in inventory management, procurement, and shipment coordination to support research projects and optimize workflows.
+
+```{r}
+
+
+```
 
 ```{r echo= FALSE, warning=FALSE}
 library(knitr)
 ```
-| **[CV](https://mitch-millerberg.github.io/About_Me/Mitchell_Millerberg_Resume.pdf)** | **[Projects](https://mitch-millerberg.github.io/Projects)** | **[Endorsement](https://mitch-millerberg.github.io/)** | **[About Me](https://mitch-millerberg.github.io/)** |
-
+|
+**[CV](https://mitch-millerberg.github.io/About_Me/Mitchell_Millerberg_Resume.pdf)** | **[Data Projects](https://mitch-millerberg.github.io/Projects.Rmd)** | **[Endorsement](https://mitch-millerberg.github.io/)** | **[About Me](https://mitch-millerberg.github.io/)** |
 
 
 ```{r echo= FALSE, out.width="20%"}
 knitr::include_graphics("./Media/mitch.jpg" )
 
-knitr::include_graphics("./Media/lake-blanche-7.jpg")
+# knitr::include_graphics("./Media/lake-blanche-7.jpg")
 
 ```
 
+
+Highly organized and detail-oriented, adept at maintaining laboratory records, managing data files, and adhering to strict protocols to ensure accuracy and reproducibility. Skilled in inventory management, procurement, and shipment coordination to support research projects and optimize workflows.
 Seeking to leverage my research experience, data analysis skills, and laboratory expertise Committed to contributing to advancements in biotechnology and pharmaceutical research, with a strong passion for scientific exploration and problem-solving.
 
 
-
+Contact Info:   
+Mitchell Millerberg    
+Biotechnology - Utah Valley University    
+Sandy, UT 84070     
+mitchell.millerberg@gmail.com
 
 
 

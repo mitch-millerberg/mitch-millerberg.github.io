@@ -1,0 +1,110 @@
+---
+title: ''
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(tidyr)
+library(readxl)
+library(janitor)
+library(lubridate)
+library(gganimate)
+library(transformr)
+library(ggplot2)
+library(stringr)
+library(gganimate)
+library(gifski)
+library(skimr)
+library(GGally)
+library(tidygeocoder)
+library(caret)
+library(ROCR)
+library(pROC)
+
+install.packages('ROCR')
+
+# Load the data 
+tcc <- read.csv("ttc-bus-delay-data-2022.csv")
+
+# Clean the data 
+tcc$Date <- as.Date(tcc$Date, format = "%Y-%m-%d")
+tcc$Time <- as.POSIXct(strptime(tcc$Time, format = "%H:%M:%S"), 
+                       format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
+tcc <- clean_names(tcc)
+tcc <- tcc %>%
+  filter(!str_detect(route, "^\\s*$"))
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars, warning=FALSE}
+skim(tcc)
+```
+
+
+
+## Is a particular bus route that is more late than others?
+
+```{r pressure, echo=FALSE}
+# Is a particular route more late than others?
+route_mean_delays <- tcc %>%
+  group_by(route) %>%
+  summarise(MeanDelay = mean(min_delay, na.rm = TRUE)) %>%
+  arrange(desc(MeanDelay)) %>%
+  head(10)
+
+# Create a bar plot to display the routes with the 10 highest mean delays
+ggplot(route_mean_delays, aes(x = reorder(route,MeanDelay,decreasing=FALSE), y = MeanDelay)) +
+  geom_bar(stat = "identity", fill = "red", color = "blue") +
+  labs(
+    title = "Top 10 Routes with Highest Mean Delay",
+    x = "Route",
+    y = "Mean Delay (Minutes)"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for better readability
+```
+
+
+
+## Is a particular bus route that is more on time than others?
+
+```{r pressure2, echo=FALSE}
+# Calculate the mean delay for each route
+all_route_delay <- tcc %>%
+  group_by(route) %>%
+  summarise(MeanDelay = mean(min_delay))
+
+# Sort routes by mean delay in descending order
+all_route_delay_summary <- all_route_delay %>%
+  arrange(desc(MeanDelay))
+
+
+# what routs are on time the most often 
+route_mean_on_time <- tcc %>%
+  group_by(route) %>%
+  summarise(MeanDelay = mean(min_delay, na.rm = FALSE)) %>%
+  arrange(MeanDelay) %>%
+  head(10)
+
+# Create a bar plot to display the routes with the 10 lowest mean delays
+#
+ggplot(route_mean_on_time, aes(x = reorder(route,MeanDelay,decedinding=TRUE),route, y = MeanDelay)) +
+  geom_bar(stat = "identity", fill = "lightgreen", color = "darkgreen") +
+  labs(
+    title = "Top 10 Routes with Lowest Mean Delay (Most On-Time Routes)",
+    x = "Route",
+    y = "Mean Delay (Minutes)"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
