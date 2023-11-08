@@ -38,11 +38,10 @@ tcc <- tcc %>%
   filter(!str_detect(route, "^\\s*$"))
 ```
 
-## R Markdown
+#### Toronto's Public Transportation System
+## The Toronto Transit Commission (TTC)
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+The Toronto Transit Commission (TTC) is Toronto's public transportation system. It is a vast network that covers Toronto and the surrounding municipalities, which are collectively known as the Greater Toronto Area (GTA). The TTC operates subways, buses, and streetcars throughout the region, making it possible to travel to almost any destination. The bus system is particularly extensive, with routes that reach almost every corner of the city. The TTC is one of the fastest and most convenient ways to get around Toronto and the GTA, and I highly recommend it to anyone visiting or living in the area.
 
 ```{r cars, warning=FALSE}
 skim(tcc)
@@ -96,7 +95,7 @@ route_mean_on_time <- tcc %>%
 
 # Create a bar plot to display the routes with the 10 lowest mean delays
 #
-ggplot(route_mean_on_time, aes(x = reorder(route,MeanDelay,decedinding=TRUE),route, y = MeanDelay)) +
+ggplot(route_mean_on_time, aes(x = reorder(route,MeanDelay,decreasing=TRUE),route, y = MeanDelay)) +
   geom_bar(stat = "identity", fill = "lightgreen", color = "darkgreen") +
   labs(
     title = "Top 10 Routes with Lowest Mean Delay (Most On-Time Routes)",
@@ -107,4 +106,14 @@ ggplot(route_mean_on_time, aes(x = reorder(route,MeanDelay,decedinding=TRUE),rou
   theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+# Citations:
+
+Data source: https://www.kaggle.com/datasets/reihanenamdari/toronto-bus-delay-2022
+
+[1] https://en.wikipedia.org/wiki/Public_transportation_in_Toronto
+[2] https://arrivein.com/daily-life-in-canada/getting-around-how-to-use-public-transportation-in-toronto/
+[3] https://www.prepareforcanada.com/choosing-a-city/toronto/public-transportation-system-in-torontoride-the-ttc/
+[4] https://apollocover.com/magazine/toronto-public-transportation
+[5] https://en.wikipedia.org/wiki/Toronto_Transit_Commission_bus_system
+[6] https://travel.usnews.com/Toronto/Getting_Around/

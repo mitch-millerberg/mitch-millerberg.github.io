@@ -20,7 +20,7 @@ library(knitr)
 
 
 ```{r echo= FALSE, out.width="20%"}
-knitr::include_graphics("./Media/mitch.jpg" )
+
 
 # knitr::include_graphics("./Media/lake-blanche-7.jpg")
 
@@ -31,12 +31,14 @@ Highly organized and detail-oriented, adept at maintaining laboratory records, m
 Seeking to leverage my research experience, data analysis skills, and laboratory expertise Committed to contributing to advancements in biotechnology and pharmaceutical research, with a strong passion for scientific exploration and problem-solving.
 
 
-Contact Info:   
-Mitchell Millerberg    
+## Contact Info:   
+# Mitchell Millerberg    
 Biotechnology - Utah Valley University    
 Sandy, UT 84070     
 mitchell.millerberg@gmail.com
 
+```{r echo=FALSE,out.width="30%"}
+knitr::include_graphics("./Media/mitch.jpg" )
 
-
+```
 
