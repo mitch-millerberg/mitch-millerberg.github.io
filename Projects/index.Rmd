@@ -23,8 +23,11 @@ library(tidygeocoder)
 library(caret)
 library(ROCR)
 library(pROC)
+library(broom)
+library(kableExtra)
+library(dplyr)
 
-install.packages('ROCR')
+#install.packages('ROCR')
 
 # Load the data 
 ttc <- read.csv("ttc-bus-delay-data-2022.csv")
@@ -41,36 +44,47 @@ ttc <- janitor::clean_names(ttc)
 ```
 
 
-```{r echo=FALSE, out.width="50%", fig.align='center'}
+```{r echo=FALSE, out.width="100%", fig.align='center'}
 knitr::include_graphics("./Media/publictransit_TTC.png")
 ```
 
-The Toronto Transit Commission (TTC) is Toronto's public transportation system. It is a vast network that covers Toronto and the surrounding municipalities, which are collectively known as the Greater Toronto Area (GTA).
-#map of toronto
-The bus system is particularly extensive, with routes that reach almost every corner of the city.
+The Toronto Transit Commission (TTC) is Toronto's public transportation system. It is a vast network that covers Toronto and the surrounding municipalities, which are collectively known as the Greater Toronto Area (GTA). The bus system is extensive, with routes that reach almost every corner of the city. The TTC operates subways, buses, and streetcars throughout the region.
+
+```{r echo=FALSE, out.width="100%", fig.align='center'}
+
+knitr::include_graphics("./Media/skyline.jpg")
+```
+
+```{r echo=FALSE, out.width="100%", fig.align='center'}
+
+knitr::include_graphics("./Media/system_map.jpg")
+```
 
 
-The TTC operates subways, buses, and streetcars throughout the region. The data for this analysis includes information on only buses. The data set is skewed because it primarily includes late buses, and does not provide a good representation of on-time buses. 
+**The data for this analysis includes information on only buses**. 
 
-The data set contains data for the first six months of 2022, from January to June.
+The **data set** is **skewed** because it primarily includes data for **late buses**. This means that it does not provide a good representation of on-time buses. The data set contains data for the first six months of 2022, from **January to June**.
+
+```{r echo=FALSE, out.width="50%", fig.align='center'}
+knitr::include_graphics("./Media/bus.JPG")
+
+```
 
 
-```{r intro, echo= FALSE, warning=FALSE}
+```{r intro, echo= FALSE,message=FALSE, warning=FALSE}
 
 rows_and_columns <- dim(ttc)
 cat("Number of rows and columns:", rows_and_columns[1], "rows,", rows_and_columns[2], "columns\n")
 
 # How many unique routes
 unique_routes <- length(unique(ttc$route))
-cat("Number of unique routes (aka busses):", unique_routes, "\n")
+cat("Number of unique BUS ROUTES:", unique_routes, "\n")
 
 
 ```
 
 
-The data set contains data for the first six months of 2022, from January to June.
-
-```{r date,echo=FALSE,warning=FALSE}
+```{r date,echo=FALSE,message=FALSE,warning=FALSE}
 ggplot(ttc, aes(x = date, y = min_delay)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE) +
@@ -87,11 +101,65 @@ ggplot(ttc, aes(x = date, y = min_delay)) +
 
 ```
 
+# Does the frequency of bus delays vary with the season? 
 
-#Buses operate 24 hours a day, 7 days a week in Toronto. However, the bus schedule may vary depending on the day of the week and the time of year. For example, buses may run less frequently on weekends and holidays.
+The data supplied 15 incidents for why the bus was late. The data provided **15 reasons** for the bus being late. The following is a table of the reasons, their frequency, and the percentage of occurrences:
 
+```{r why, echo= FALSE,message=FALSE, warning=FALSE}
+incident_counts <- ttc %>%
+  group_by(incident) %>%
+  summarize(count = n())
 
-```{r time, echo=FALSE,warning=FALSE}
+# Calculate total occurrences
+total_occurrences <- nrow(ttc)
+
+# Add a column for percentages
+incident_counts <- incident_counts %>%
+  mutate(percentage = round((count / total_occurrences) * 100, 2))  # Round to 2 decimal places
+
+# Arrange by percentage in descending order
+incident_counts <- incident_counts %>%
+  arrange(desc(percentage))
+
+# Use kableExtra for styling
+incident_counts %>%
+  kable() %>%
+  kable_styling("hover", full_width = FALSE) %>%
+  kable_classic(lightable_options = "hover")
+```
+
+I studied all the reasons for bus delays, but only included the three most noteworthy: mechanical, general, and vision. I then plotted the data over time and found no correlation between the time of year and the type of delay.
+
+```{r incident_list,message=FALSE,echo=FALSE}
+incident_list <- c("Mechanical", "General Delay", "Vision")
+
+# Create a list of ggplot objects for each incident
+plot_list <- lapply(incident_list, function(incident_type) {
+  ggplot(subset(ttc, incident == incident_type), aes(x = date, y = min_delay)) +
+    geom_point(color = "black") +
+    geom_smooth(method = "lm", se = FALSE) +
+    scale_x_date(
+      date_breaks = "1 month",
+      date_labels = "%b %Y",
+      limits = c(min(ttc$date), max(ttc$date))
+    ) +
+    labs(
+      title = paste("Relationship between Date and Bus Delay (Incident:", incident_type, ")"),
+      x = "Date",
+      y = "Min Delay"
+    )
+})
+
+# Combine the plots using facet_wrap
+final_plot <- do.call(gridExtra::grid.arrange, c(plot_list, ncol = 1))
+
+```
+
+# Does time of day impact bus schedules?
+
+In Toronto, buses operate 24 hours a day, 7 days a week. The bus schedule may vary depending on the day of the week and the time of year. One question that arises is whether the time of day affects the likelihood of a bus being late.
+
+```{r time, echo=FALSE,message=FALSE,warning=FALSE}
 
 ggplot(ttc, aes(x = time_2, y = min_delay)) +
   geom_point() +
@@ -109,10 +177,11 @@ ggplot(ttc, aes(x = time_2, y = min_delay)) +
 
 ```
 
+# Does rush hour impact bus schedules?
 
-During rush hour, which is typically between 7 a.m. and 9 a.m. and 5 p.m. and 7 p.m., are buses more likely to be late?
+During rush hour, which is typically between **7 a.m. and 9 a.m. and 5 p.m. and 7 p.m.**, are buses more likely to be late?
 
-```{r busy_times,echo=FALSE}
+```{r busy_times,message=FALSE,echo=FALSE}
 # Create a factor for rush hour
 ttc$rush_hour <- ifelse((ttc$time_2 >= 7 & ttc$time_2 <= 9) | (ttc$time_2 >= 17 & ttc$time_2 <= 19), "Rush Hour", "Non-Rush Hour")
 
@@ -135,10 +204,9 @@ ggplot(ttc, aes(x = time_2, y = min_delay, color = rush_hour)) +
 
 ```
 
+# The bus is most likely to be late on which day of the week?
 
-The bus is most likely to be late on Sunday, with an average delay of 25 minutes. The least likely day for the bus to be late is Tuesday, with an average delay of only 17 minutes.
-
-```{r day of week, echo=FALSE}
+```{r day of week,message=FALSE, echo=FALSE}
 # On what day is the bus most likey going to be late? 
 # Calculate the average delay for each day of the week?
 # Create an ordered factor for days of the week
@@ -158,44 +226,37 @@ ggplot(average_delays, aes(x = day, y = AvgDelay)) +
   theme_minimal()
 
 ```
+The bus is most likely to be late on Sunday, with an average delay of 25 minutes. The least likely day for the bus to be late is Tuesday, with an average delay of only 17 minutes.
 
 
-```{r summary,echo=TRUE, warning=FALSE}
-##model time_2
-timemodel <- lm(min_delay ~ time_posi, data = ttc)
+# All Bus routes
 
-# Summary of the model
-summary(timemodel)
-report::report(timemodel)
-```
+There are 224 bus routes in this data set.
 
-
-
-```{r route,echo=FALSE,warning=FALSE}
+```{r violin,echo=FALSE,message=FALSE,warning=FALSE,}
 
 # Calculate order of routes based on max min_delay
-ordering <- ttc %>%
-  group_by(route) %>%
-  summarize(max_delay = max(min_delay)) %>%
-  arrange(desc(max_delay)) %>%
-  pull(route)
+x.order <- 
+ttc %>% 
+  group_by(route) %>% 
+  summarize(max = max(min_delay)) %>% 
+  arrange(desc(max)) %>% 
+  pluck("route")
 
-# Create a violin plot with ggplot2
-ggplot(ttc %>% mutate(route = factor(route, levels = ordering)), aes(x = route, y = min_delay)) +
+#min_dealy and route
+plot1 <- 
+ggplot(ttc %>% 
+         mutate(route=factor(route,levels=x.order)), aes(x = route, y = min_delay)) +
   geom_violin() +
-  geom_point(position = position_jitter(width = 0.2), alpha = 0.5) +  # Add jittered points for better visibility
-  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Linear regression line
-  labs(
-    title = "Distribution of Bus Delay Across Routes",
-    x = "Route",
-    y = "Min Delay"
-  ) +
-  theme_minimal()
+  # Add a linear regression line
+  geom_smooth(method = "lm", se = FALSE) +
+  theme(axis.text.x = element_blank())
 
-# Convert ggplot to plotly for interactivity
-plotly::ggplotly()
+plotly::ggplotly(plot1)
+
 ```
 
+# Late Busses 
 
 Is there a particular bus route that is more late than others?
 
@@ -208,7 +269,7 @@ route_mean_delays <- ttc %>%
   head(10)
 
 # Create a bar plot to display the routes with the 10 highest mean delays
-ggplot(route_mean_delays, aes(x = reorder(route,MeanDelay,decreasing=FALSE), y = MeanDelay)) +
+ggplot(route_mean_delays, aes(x = reorder(route,MeanDelay,decreasing=TRUE), y = MeanDelay)) +
   geom_bar(stat = "identity", fill = "red", color = "blue") +
   labs(
     title = "Top 10 Routes with Highest Mean Delay",
@@ -219,7 +280,7 @@ ggplot(route_mean_delays, aes(x = reorder(route,MeanDelay,decreasing=FALSE), y =
   theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for better readability
 ```
 
-
+# On Time Busses
 
 Is there a particular bus route that is more on time than others?
 
@@ -255,9 +316,33 @@ ggplot(route_mean_on_time, aes(x = reorder(route,MeanDelay,decreasing=TRUE),rout
 ```
 
 
+The model predicts the average {min_delay} to be **54851.09	mins**.
+
+ **A p-value of 0.0268**, is less than the commonly used significance level of 0.05. This suggests that there is evidence to **reject** the null hypothesis that the intercept is zero.
+
+ .
+```{r summary,echo=FALSE,message=FALSE, warning=FALSE}
+##model time_2
+timemodel <- lm(min_delay ~ time_posi, data = ttc)
+
+# Summary of the model
+tidy_summary <- broom::tidy(timemodel)
+
+# Round the numeric columns to 2 decimal places
+tidy_summary <- tidy_summary %>%
+  mutate(across(where(is.numeric), ~round(., 2)))
+
+# Display the rounded summary using kable
+tidy_summary %>%
+  kableExtra::kable() %>%
+  kableExtra::kable_classic(lightable_options = "hover")
+
+```
 
 
-
+```{r report,echo=FALSE,message=FALSE, warning=FALSE}
+report::report(timemodel)
+```
 
 
 
