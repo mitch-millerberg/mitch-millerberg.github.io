@@ -26,6 +26,7 @@ library(pROC)
 library(broom)
 library(kableExtra)
 library(dplyr)
+library(gridExtra)
 
 #install.packages('ROCR')
 
@@ -61,9 +62,9 @@ knitr::include_graphics("./Media/system_map.jpg")
 ```
 
 
-**The data for this analysis includes information on only buses**. 
+**The data for this analysis includes information on buses only**. 
 
-The **data set** is **skewed** because it primarily includes data for **late buses**. This means that it does not provide a good representation of on-time buses. The data set contains data for the first six months of 2022, from **January to June**.
+The **data set** is **skewed** because it primarily includes data for **late buses**. This means that it does not provide an extensive representation of on-time buses. The data set contains data for the first six months of 2022, from **January to June**.
 
 ```{r echo=FALSE, out.width="50%", fig.align='center'}
 knitr::include_graphics("./Media/bus.JPG")
@@ -84,6 +85,8 @@ cat("Number of unique BUS ROUTES:", unique_routes, "\n")
 ```
 
 
+# Does the frequency of bus delays vary with the season? 
+
 ```{r date,echo=FALSE,message=FALSE,warning=FALSE}
 ggplot(ttc, aes(x = date, y = min_delay)) +
   geom_point() +
@@ -101,9 +104,7 @@ ggplot(ttc, aes(x = date, y = min_delay)) +
 
 ```
 
-# Does the frequency of bus delays vary with the season? 
-
-The data supplied 15 incidents for why the bus was late. The data provided **15 reasons** for the bus being late. The following is a table of the reasons, their frequency, and the percentage of occurrences:
+The data supplied 15 incidents for why a bus was late. The data provided **15 reasons** for a bus to be late. The following is a table of the reasons, including frequency, and the percentage of occurrences:
 
 ```{r why, echo= FALSE,message=FALSE, warning=FALSE}
 incident_counts <- ttc %>%
@@ -128,10 +129,15 @@ incident_counts %>%
   kable_classic(lightable_options = "hover")
 ```
 
-I studied all the reasons for bus delays, but only included the three most noteworthy: mechanical, general, and vision. I then plotted the data over time and found no correlation between the time of year and the type of delay.
+
+The three most notable reasons for bus delays—operations (operator), mechanical, and vision—do not exhibit a linear or seasonal relationship between the time of year and the type of delay.
+
 
 ```{r incident_list,message=FALSE,echo=FALSE}
-incident_list <- c("Mechanical", "General Delay", "Vision")
+incident_list <- c("Operations - Operator",
+                   "Mechanical",
+                   "Vision"
+                 )
 
 # Create a list of ggplot objects for each incident
 plot_list <- lapply(incident_list, function(incident_type) {
@@ -144,7 +150,7 @@ plot_list <- lapply(incident_list, function(incident_type) {
       limits = c(min(ttc$date), max(ttc$date))
     ) +
     labs(
-      title = paste("Relationship between Date and Bus Delay (Incident:", incident_type, ")"),
+      title = paste(" Incident:", incident_type, ""),
       x = "Date",
       y = "Min Delay"
     )
@@ -152,6 +158,8 @@ plot_list <- lapply(incident_list, function(incident_type) {
 
 # Combine the plots using facet_wrap
 final_plot <- do.call(gridExtra::grid.arrange, c(plot_list, ncol = 1))
+
+
 
 ```
 
@@ -226,7 +234,11 @@ ggplot(average_delays, aes(x = day, y = AvgDelay)) +
   theme_minimal()
 
 ```
-The bus is most likely to be late on Sunday, with an average delay of 25 minutes. The least likely day for the bus to be late is Tuesday, with an average delay of only 17 minutes.
+
+
+**Sunday** was the day of the week that a bus was most likely to be **late** with an average delay of **25 minutes**. 
+
+**Tuesday** was the day of the week that a bus was most likely to be **on time** with an average delay of **17 minutes**. 
 
 
 # All Bus routes
@@ -258,7 +270,7 @@ plotly::ggplotly(plot1)
 
 # Late Busses 
 
-Is there a particular bus route that is more late than others?
+Is there a bus route that is consistently later than others?
 
 ```{r pressure, echo=FALSE}
 # Is a particular route more late than others?
@@ -282,7 +294,7 @@ ggplot(route_mean_delays, aes(x = reorder(route,MeanDelay,decreasing=TRUE), y = 
 
 # On Time Busses
 
-Is there a particular bus route that is more on time than others?
+Is there a bus route that is more punctual than others?
 
 ```{r pressure2, echo=FALSE}
 # Calculate the mean delay for each route
@@ -316,14 +328,14 @@ ggplot(route_mean_on_time, aes(x = reorder(route,MeanDelay,decreasing=TRUE),rout
 ```
 
 
-The model predicts the average {min_delay} to be **54851.09	mins**.
+The model predicts the average {min_delay} to be **21 mins**.
 
- **A p-value of 0.0268**, is less than the commonly used significance level of 0.05. This suggests that there is evidence to **reject** the null hypothesis that the intercept is zero.
+ **A p-value of 0.027**, is less than the commonly used significance level of 0.05. This suggests that there is evidence to **reject** the null hypothesis that the intercept is zero.
 
  .
 ```{r summary,echo=FALSE,message=FALSE, warning=FALSE}
 ##model time_2
-timemodel <- lm(min_delay ~ time_posi, data = ttc)
+timemodel <- lm(min_delay ~ time_2, data = ttc)
 
 # Summary of the model
 tidy_summary <- broom::tidy(timemodel)
@@ -352,27 +364,23 @@ report::report(timemodel)
 
 
 
-
-
-
-
-
-
-
-
-
 # Citations:
 
-Data source: https://www.kaggle.com/datasets/reihanenamdari/toronto-bus-delay-2022
+Data source
+Toronto Bus Delay 2022 dataset
+Reihane Namdari
+Kaggle: https://www.kaggle.com/datasets/reihanenamdari/toronto-bus-delay-2022
 
-[1]https://en.wikipedia.org/wiki/
+Additional Information:
 
-[2]https://arrivein.com/daily-life-in-canada/getting-around-how-to-use-public-transportation-in-toronto/
+[1] Wikipedia. Toronto. https://en.wikipedia.org/wiki/
 
-[3]https://www.prepareforcanada.com/choosing-a-city/toronto/public-transportation-system-in-torontoride-the-ttc/
+[2] Arrivein. Daily Life in Canada - Getting Around: How to Use Public Transportation in Toronto. https://arrivein.com/daily-life-in-canada/getting-around-how-to-use-public-transportation-in-toronto/
 
-[4]https://apollocover.com/magazine/toronto-public-transportation
+[3] Prepare for Canada. Public Transportation System in Toronto - Ride the TTC. https://www.prepareforcanada.com/choosing-a-city/toronto/public-transportation-system-in-torontoride-the-ttc/
 
-[5]https://en.wikipedia.org/wiki/Toronto_Transit_Commission_bus_system
+[4] Apollo Cover Magazine. Toronto Public Transportation. https://apollocover.com/magazine/toronto-public-transportation
 
-[6]https://travel.usnews.com/Toronto/Getting_Around/
+[5] Wikipedia. Toronto Transit Commission bus system. https://en.wikipedia.org/wiki/Toronto_Transit_Commission_bus_system
+
+[6] U.S. News & World Report. Toronto - Getting Around. https://travel.usnews.com/Toronto/Getting_Around/
